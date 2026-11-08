@@ -16,12 +16,52 @@
   border-right: 1px solid var(--border);
 }
 
+.load-bar {
+  padding: 16px 16px 4px;
+}
+
+.load-button {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--text-strong);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.load-button:hover {
+  border-color: var(--accent);
+}
+
+.load-button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.load-error {
+  margin: 8px 4px 0;
+  color: #f0b4a8;
+  font-size: 13px;
+}
+
 .menu {
   display: flex;
   flex: 1;
   flex-direction: column;
   min-height: 0;
-  padding: 12px 8px;
+  padding: 8px;
+}
+
+.menu-section {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.menu-section.is-open {
+  flex: 1;
 }
 
 .menu-toggle {
@@ -117,6 +157,84 @@
 .office-name {
   font-weight: 600;
   color: var(--text-strong);
+}
+
+.person-item {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  text-align: left;
+  padding: 12px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: transparent;
+  cursor: pointer;
+}
+
+.person-item:hover {
+  background: var(--surface);
+  border-color: var(--border);
+}
+
+.person-item:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.person-item.is-selected {
+  background: var(--accent-soft);
+  border-color: transparent;
+}
+
+.person-office {
+  color: var(--muted);
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: 12px;
+}
+
+.person-office.is-unknown {
+  color: #f0b4a8;
+}
+
+.people-empty,
+.assigned-empty {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.people-empty {
+  padding: 8px 12px;
+}
+
+.assigned-people {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.assigned-people li {
+  border-bottom: 1px solid var(--border);
+}
+
+.assigned-people button {
+  width: 100%;
+  padding: 8px 0;
+  border: 0;
+  background: transparent;
+  color: var(--text-strong);
+  text-align: left;
+  cursor: pointer;
+}
+
+.assigned-people button:hover {
+  color: var(--accent);
+}
+
+.person-place {
+  margin-top: 8px;
+  color: var(--text);
 }
 
 .level {
