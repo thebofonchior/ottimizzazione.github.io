@@ -1,7 +1,11 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import offices from './data/uffici.json'
+import peopleCsv from './data/people.csv?raw'
 import { parsePeopleFile } from './parsePeople.js'
 import './App.css'
+
+// Temporary for development: the people list always starts from this file.
+const developmentPeople = parsePeopleFile(new TextEncoder().encode(peopleCsv), 'people.csv')
 
 function formatAddress(address) {
   return `${address.street}, ${address.postalCode} ${address.locality} (${address.province})`
@@ -16,37 +20,46 @@ function formatSlots(slots) {
   return slots.map((slot) => `${slot.from}–${slot.to}`).join(', ')
 }
 
-const PEOPLE_STORAGE_KEY = 'people'
-
 function findOffice(officeId) {
   const needle = officeId.trim().toLowerCase()
   if (!needle) return null
   return offices.find((office) => office.id.toLowerCase() === needle) ?? null
 }
 
-function isStoredPerson(value) {
-  return (
-    !!value &&
-    typeof value === 'object' &&
-    typeof value.name === 'string' &&
-    typeof value.officeId === 'string'
-  )
+function groupPeopleByOffice(items) {
+  const groups = []
+  items.forEach((person, index) => {
+    const office = findOffice(person.officeId)
+    const id = office?.id ?? (person.officeId.trim() || 'No office')
+    const existing = groups.find((group) => group.id === id)
+    if (existing) {
+      existing.people.push({ person, index })
+    } else {
+      groups.push({ id, known: Boolean(office), people: [{ person, index }] })
+    }
+  })
+
+  const order = new Map(offices.map((office, index) => [office.id, index]))
+  groups.sort((a, b) => {
+    const aIndex = order.get(a.id) ?? Number.POSITIVE_INFINITY
+    const bIndex = order.get(b.id) ?? Number.POSITIVE_INFINITY
+    if (aIndex !== bIndex) return aIndex - bIndex
+    return a.id.localeCompare(b.id)
+  })
+  return groups
 }
 
-function readSavedPeople() {
-  try {
-    const stored = localStorage.getItem(PEOPLE_STORAGE_KEY)
-    if (!stored) return []
-    const parsed = JSON.parse(stored)
-    if (!Array.isArray(parsed) || !parsed.every(isStoredPerson)) return []
-    return parsed
-  } catch {
-    return []
-  }
-}
+function useNarrowScreen() {
+  const [narrow, setNarrow] = useState(() => window.matchMedia('(max-width: 800px)').matches)
 
-function savePeople(nextPeople) {
-  localStorage.setItem(PEOPLE_STORAGE_KEY, JSON.stringify(nextPeople))
+  useEffect(() => {
+    const media = window.matchMedia('(max-width: 800px)')
+    const onChange = () => setNarrow(media.matches)
+    media.addEventListener('change', onChange)
+    return () => media.removeEventListener('change', onChange)
+  }, [])
+
+  return narrow
 }
 
 function PersonDetail({ person }) {
@@ -56,6 +69,16 @@ function PersonDetail({ person }) {
     <article className="office-detail">
       <p className="detail-kicker">Person</p>
       <h2>{person.name}</h2>
+
+      <section className="detail-section">
+        <h3>Home address</h3>
+        <p className="address">{person.address || 'No address'}</p>
+      </section>
+
+      <section className="detail-section">
+        <h3>Phone</h3>
+        <p className="address">{person.phone || 'No phone number'}</p>
+      </section>
 
       <section className="detail-section">
         <h3>Office</h3>
@@ -77,6 +100,63 @@ function PersonDetail({ person }) {
   )
 }
 
+function Home({ onFile, error }) {
+  const fileInput = useRef(null)
+  const [dragging, setDragging] = useState(false)
+
+  function takeFile(file) {
+    setDragging(false)
+    if (file) onFile(file)
+  }
+
+  return (
+    <main className="home">
+      <div
+        className={dragging ? 'drop-zone is-dragging' : 'drop-zone'}
+        onDragEnter={(event) => {
+          event.preventDefault()
+          setDragging(true)
+        }}
+        onDragOver={(event) => {
+          event.preventDefault()
+          setDragging(true)
+        }}
+        onDragLeave={(event) => {
+          if (!event.currentTarget.contains(event.relatedTarget)) setDragging(false)
+        }}
+        onDrop={(event) => {
+          event.preventDefault()
+          takeFile(event.dataTransfer.files?.[0])
+        }}
+      >
+        <h1>Load a people file</h1>
+        <p>
+          Drop a CSV or Excel file here, or choose one from your computer. The file needs columns
+          for name, office id, home address, and phone number.
+        </p>
+        <button type="button" className="choose-button" onClick={() => fileInput.current?.click()}>
+          Choose file
+        </button>
+        <input
+          ref={fileInput}
+          type="file"
+          accept=".csv,.xlsx,.xls,text/csv"
+          hidden
+          onChange={(event) => {
+            takeFile(event.target.files?.[0])
+            event.target.value = ''
+          }}
+        />
+        {error && (
+          <p className="load-error" role="alert">
+            {error}
+          </p>
+        )}
+      </div>
+    </main>
+  )
+}
+
 function Chevron() {
   return (
     <svg className="chevron" viewBox="0 0 16 16" aria-hidden="true">
@@ -94,10 +174,13 @@ function Chevron() {
 
 function App() {
   const fileInput = useRef(null)
+  const narrow = useNarrowScreen()
+  const [menuOpen, setMenuOpen] = useState(false)
   const [selection, setSelection] = useState(null)
   const [officesOpen, setOfficesOpen] = useState(true)
-  const [peopleOpen, setPeopleOpen] = useState(() => readSavedPeople().length > 0)
-  const [people, setPeople] = useState(readSavedPeople)
+  const [peopleOpen, setPeopleOpen] = useState(developmentPeople.length > 0)
+  const [openPeopleOffice, setOpenPeopleOffice] = useState(null)
+  const [people, setPeople] = useState(developmentPeople)
   const [loadError, setLoadError] = useState(null)
   const selectedOffice =
     selection?.kind === 'office'
@@ -111,34 +194,67 @@ function App() {
       )
     : []
 
-  async function onPeopleFile(event) {
-    const file = event.target.files?.[0]
-    event.target.value = ''
+  async function loadPeopleFile(file) {
     if (!file) return
 
     try {
       const nextPeople = parsePeopleFile(await file.arrayBuffer(), file.name)
-      savePeople(nextPeople)
       setPeople(nextPeople)
       setPeopleOpen(true)
+      setOpenPeopleOffice(null)
       setLoadError(null)
+      setMenuOpen(false)
       setSelection((current) => (current?.kind === 'person' ? null : current))
     } catch (error) {
       setLoadError(error instanceof Error ? error.message : 'This file could not be read.')
     }
   }
 
+  function onPeopleFile(event) {
+    const file = event.target.files?.[0]
+    event.target.value = ''
+    loadPeopleFile(file)
+  }
+
   function selectOffice(id) {
     setSelection({ kind: 'office', id })
+    setMenuOpen(false)
   }
 
   function selectPerson(index) {
     setSelection({ kind: 'person', index })
+    setMenuOpen(false)
   }
 
+  useEffect(() => {
+    if (!menuOpen) return undefined
+    function onKeyDown(event) {
+      if (event.key === 'Escape') setMenuOpen(false)
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [menuOpen])
+
   return (
-    <div className="app">
-      <aside className="sidebar">
+    <div className={menuOpen ? 'app menu-is-open' : 'app'}>
+      {narrow && (
+        <header className="topbar">
+          <button
+            type="button"
+            className="burger"
+            aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+            aria-expanded={menuOpen}
+            aria-controls="sidebar"
+            onClick={() => setMenuOpen((open) => !open)}
+          >
+            <span className="burger-lines" />
+          </button>
+        </header>
+      )}
+      {narrow && menuOpen && (
+        <button type="button" className="backdrop" aria-label="Close menu" onClick={() => setMenuOpen(false)} />
+      )}
+      <aside id="sidebar" className="sidebar" inert={narrow && !menuOpen ? true : undefined}>
         <div className="load-bar">
           <button type="button" className="load-button" onClick={() => fileInput.current?.click()}>
             Load people
@@ -214,23 +330,45 @@ function App() {
                 {people.length === 0 ? (
                   <li className="people-empty">No people loaded.</li>
                 ) : (
-                  people.map((person, index) => {
-                    const office = findOffice(person.officeId)
-                    const isSelected = selection?.kind === 'person' && selection.index === index
+                  groupPeopleByOffice(people).map((group) => {
+                    const isOpen = openPeopleOffice === group.id
+                    const panelId = `people-${group.id.replaceAll(' ', '-')}`
                     return (
-                      <li key={`${person.name}-${person.officeId}-${index}`}>
+                      <li key={group.id}>
                         <button
                           type="button"
-                          className={isSelected ? 'person-item is-selected' : 'person-item'}
-                          aria-current={isSelected ? 'true' : undefined}
-                          onClick={() => selectPerson(index)}
+                          className="menu-toggle is-nested"
+                          aria-expanded={isOpen}
+                          aria-controls={panelId}
+                          onClick={() =>
+                            setOpenPeopleOffice((current) => (current === group.id ? null : group.id))
+                          }
                         >
-                          <span className="office-name">{person.name}</span>
-                          <span className={office ? 'person-office' : 'person-office is-unknown'}>
-                            {person.officeId || 'No office'}
-                            {office ? '' : ' · unknown'}
+                          <span className={group.known ? undefined : 'person-office is-unknown'}>
+                            {group.id}
                           </span>
+                          <span className="menu-count">{group.people.length}</span>
+                          <Chevron />
                         </button>
+                        {isOpen && (
+                          <ul className="office-list" id={panelId}>
+                            {group.people.map(({ person, index }) => {
+                              const isSelected = selection?.kind === 'person' && selection.index === index
+                              return (
+                                <li key={`${person.name}-${index}`}>
+                                  <button
+                                    type="button"
+                                    className={isSelected ? 'person-item is-selected' : 'person-item'}
+                                    aria-current={isSelected ? 'true' : undefined}
+                                    onClick={() => selectPerson(index)}
+                                  >
+                                    <span className="office-name">{person.name}</span>
+                                  </button>
+                                </li>
+                              )
+                            })}
+                          </ul>
+                        )}
                       </li>
                     )
                   })
@@ -241,6 +379,9 @@ function App() {
         </div>
       </aside>
 
+      {people.length === 0 ? (
+        <Home onFile={loadPeopleFile} error={loadError} />
+      ) : (
       <main className="main">
         {selectedPerson ? (
           <PersonDetail person={selectedPerson} />
@@ -298,6 +439,7 @@ function App() {
           </div>
         )}
       </main>
+      )}
     </div>
   )
 }
