@@ -4,6 +4,8 @@
     "municipality": "Porto Mantovano",
     "name": "Porto Mantovano",
     "level": "A1",
+    "openAfternoon": true,
+    "openSaturday": true,
     "address": {
       "street": "Via Giuseppe Mazzini, 8",
       "postalCode": "46047",
@@ -76,6 +78,8 @@
     "municipality": "Roverbella",
     "name": "Roverbella",
     "level": "A2",
+    "openAfternoon": false,
+    "openSaturday": true,
     "address": {
       "street": "Piazza Castello, 3",
       "postalCode": "46048",
@@ -156,6 +160,8 @@
     "municipality": "Mantova",
     "name": "Mantova 3",
     "level": "A1",
+    "openAfternoon": false,
+    "openSaturday": true,
     "address": {
       "street": "Via Chiassi, 22",
       "postalCode": "46100",
@@ -228,6 +234,8 @@
     "municipality": "Roverbella",
     "name": "Malavicina",
     "level": "C",
+    "openAfternoon": false,
+    "openSaturday": true,
     "address": {
       "street": "Via Malavicina, 14",
       "postalCode": "46048",
@@ -299,6 +307,8 @@
     "municipality": "Mantova",
     "name": "Mantova 5",
     "level": "C",
+    "openAfternoon": false,
+    "openSaturday": false,
     "address": {
       "street": "Strada Cipata, 41",
       "postalCode": "46100",
@@ -370,6 +380,8 @@
     "municipality": "Porto Mantovano",
     "name": "Soave Mantovano",
     "level": "C",
+    "openAfternoon": false,
+    "openSaturday": true,
     "address": {
       "street": "Via Soave, 6",
       "postalCode": "46047",
@@ -437,6 +449,8 @@
     "municipality": "Castelbelforte",
     "name": "Castelbelforte",
     "level": "B",
+    "openAfternoon": false,
+    "openSaturday": true,
     "address": {
       "street": "Via Roma, 11",
       "postalCode": "46032",
@@ -509,6 +523,8 @@
     "municipality": "Castellucchio",
     "name": "Castellucchio",
     "level": "B",
+    "openAfternoon": false,
+    "openSaturday": true,
     "address": {
       "street": "Via Matteotti, 19",
       "postalCode": "46014",
@@ -581,6 +597,8 @@
     "municipality": "Marmirolo",
     "name": "Marmirolo",
     "level": "B",
+    "openAfternoon": false,
+    "openSaturday": true,
     "address": {
       "street": "Via Dante Alighieri, 27",
       "postalCode": "46045",
@@ -657,6 +675,8 @@
     "municipality": "Rodigo",
     "name": "Rivalta sul Mincio",
     "level": "B",
+    "openAfternoon": false,
+    "openSaturday": true,
     "address": {
       "street": "Via della Chiesa, 4",
       "postalCode": "46040",

@@ -10,8 +10,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@fullcalendar/react": "^7.1.4",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
+    "temporal-polyfill": "^1.0.8",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {

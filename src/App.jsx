@@ -2,10 +2,39 @@ import { useEffect, useRef, useState } from 'react'
 import offices from './data/uffici.json'
 import peopleCsv from './data/people.csv?raw'
 import { parsePeopleFile } from './parsePeople.js'
+import { SHIFTS, readScheduleFile, scheduleMessage, scheduleToBytes } from './schedule.js'
+import { OfficeCalendar, ScheduleView } from './ScheduleView.jsx'
 import './App.css'
 
 // Temporary for development: the people list always starts from this file.
 const developmentPeople = parsePeopleFile(new TextEncoder().encode(peopleCsv), 'people.csv')
+const ASSIGNMENTS_KEY = 'progetto-richi.assignments'
+const DAY_HOURS_KEY = 'progetto-richi.dayHours'
+
+function readStored(key) {
+  try {
+    const value = JSON.parse(localStorage.getItem(key) ?? '')
+    if (!value || typeof value !== 'object' || Array.isArray(value)) return {}
+    return value
+  } catch {
+    return {}
+  }
+}
+
+function downloadSchedule(offices, assignments) {
+  const bytes = scheduleToBytes(offices, assignments)
+  const blob = new Blob([bytes], {
+    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  })
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = 'schedule.xlsx'
+  document.body.appendChild(link)
+  link.click()
+  link.remove()
+  URL.revokeObjectURL(url)
+}
 
 function formatAddress(address) {
   return `${address.street}, ${address.postalCode} ${address.locality} (${address.province})`
@@ -24,29 +53,6 @@ function findOffice(officeId) {
   const needle = officeId.trim().toLowerCase()
   if (!needle) return null
   return offices.find((office) => office.id.toLowerCase() === needle) ?? null
-}
-
-function groupPeopleByOffice(items) {
-  const groups = []
-  items.forEach((person, index) => {
-    const office = findOffice(person.officeId)
-    const id = office?.id ?? (person.officeId.trim() || 'No office')
-    const existing = groups.find((group) => group.id === id)
-    if (existing) {
-      existing.people.push({ person, index })
-    } else {
-      groups.push({ id, known: Boolean(office), people: [{ person, index }] })
-    }
-  })
-
-  const order = new Map(offices.map((office, index) => [office.id, index]))
-  groups.sort((a, b) => {
-    const aIndex = order.get(a.id) ?? Number.POSITIVE_INFINITY
-    const bIndex = order.get(b.id) ?? Number.POSITIVE_INFINITY
-    if (aIndex !== bIndex) return aIndex - bIndex
-    return a.id.localeCompare(b.id)
-  })
-  return groups
 }
 
 function useNarrowScreen() {
@@ -97,6 +103,127 @@ function PersonDetail({ person }) {
         )}
       </section>
     </article>
+  )
+}
+
+function PeopleTable({ rows, onSelect, empty }) {
+  if (rows.length === 0) return <p className="assigned-empty">{empty}</p>
+
+  return (
+    <table className="people-table">
+      <thead>
+        <tr>
+          <th scope="col">Name</th>
+          <th scope="col">Office</th>
+          <th scope="col">Address</th>
+          <th scope="col">Phone</th>
+        </tr>
+      </thead>
+      <tbody>
+        {rows.map(({ person, index, office }) => (
+          <tr key={`${person.name}-${index}`}>
+            <td>
+              <button type="button" className="people-name" onClick={() => onSelect(index)}>
+                {person.name}
+              </button>
+            </td>
+            <td>
+              {office ? (
+                office.name
+              ) : (
+                <span className="person-office is-unknown">{person.officeId || 'No office'}</span>
+              )}
+            </td>
+            <td>{person.address || '—'}</td>
+            <td>{person.phone || '—'}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  )
+}
+
+function PeoplePage({ people, onSelect }) {
+  const [query, setQuery] = useState('')
+  const [officeId, setOfficeId] = useState('')
+  const [municipality, setMunicipality] = useState('')
+  const municipalities = [...new Set(offices.map((office) => office.municipality))].sort((a, b) =>
+    a.localeCompare(b),
+  )
+  const officeOptions = offices.filter((office) => !municipality || office.municipality === municipality)
+  const tokens = query.trim().toLowerCase().split(/\s+/).filter(Boolean)
+  const rows = people.flatMap((person, index) => {
+    const office = findOffice(person.officeId)
+    if (officeId === 'unknown') {
+      if (office) return []
+    } else if (officeId && office?.id !== officeId) {
+      return []
+    }
+    if (municipality && office?.municipality !== municipality) return []
+    const haystack = [person.name, person.address, person.phone, person.officeId, office?.name, office?.municipality]
+      .filter(Boolean)
+      .join(' ')
+      .toLowerCase()
+    if (tokens.some((token) => !haystack.includes(token))) return []
+    return [{ person, index, office }]
+  })
+
+  return (
+    <main className="main people-page">
+      <header className="office-head">
+        <p className="detail-kicker">People</p>
+        <h2>All people</h2>
+        <p className="people-summary">
+          {rows.length === people.length ? `${people.length} people` : `${rows.length} of ${people.length}`}
+        </p>
+      </header>
+
+      <div className="people-tools">
+        <label>
+          Search
+          <input
+            type="search"
+            value={query}
+            placeholder="Name, address, or phone"
+            onChange={(event) => setQuery(event.target.value)}
+          />
+        </label>
+        <label>
+          Office
+          <select
+            value={officeOptions.some((office) => office.id === officeId) || officeId === 'unknown' ? officeId : ''}
+            onChange={(event) => setOfficeId(event.target.value)}
+          >
+            <option value="">All offices</option>
+            {officeOptions.map((office) => (
+              <option key={office.id} value={office.id}>
+                {office.name}
+              </option>
+            ))}
+            <option value="unknown">Unknown office</option>
+          </select>
+        </label>
+        <label>
+          Municipality
+          <select value={municipality} onChange={(event) => setMunicipality(event.target.value)}>
+            <option value="">All municipalities</option>
+            {municipalities.map((name) => (
+              <option key={name} value={name}>
+                {name}
+              </option>
+            ))}
+          </select>
+        </label>
+      </div>
+
+      <section className="info-card people-table-card">
+        <PeopleTable
+          rows={rows}
+          onSelect={onSelect}
+          empty={people.length === 0 ? 'No people loaded.' : 'No people match this search.'}
+        />
+      </section>
+    </main>
   )
 }
 
@@ -174,14 +301,16 @@ function Chevron() {
 
 function App() {
   const fileInput = useRef(null)
+  const scheduleInput = useRef(null)
   const narrow = useNarrowScreen()
   const [menuOpen, setMenuOpen] = useState(false)
   const [selection, setSelection] = useState(null)
   const [officesOpen, setOfficesOpen] = useState(true)
-  const [peopleOpen, setPeopleOpen] = useState(developmentPeople.length > 0)
-  const [openPeopleOffice, setOpenPeopleOffice] = useState(null)
   const [people, setPeople] = useState(developmentPeople)
   const [loadError, setLoadError] = useState(null)
+  const [scheduleNotice, setScheduleNotice] = useState(null)
+  const [assignments, setAssignments] = useState(() => readStored(ASSIGNMENTS_KEY))
+  const [dayHours, setDayHours] = useState(() => readStored(DAY_HOURS_KEY))
   const selectedOffice =
     selection?.kind === 'office'
       ? (offices.find((office) => office.id === selection.id) ?? null)
@@ -200,8 +329,6 @@ function App() {
     try {
       const nextPeople = parsePeopleFile(await file.arrayBuffer(), file.name)
       setPeople(nextPeople)
-      setPeopleOpen(true)
-      setOpenPeopleOffice(null)
       setLoadError(null)
       setMenuOpen(false)
       setSelection((current) => (current?.kind === 'person' ? null : current))
@@ -224,6 +351,44 @@ function App() {
   function selectPerson(index) {
     setSelection({ kind: 'person', index })
     setMenuOpen(false)
+  }
+
+  function openSchedule() {
+    setSelection({ kind: 'schedule' })
+    setMenuOpen(false)
+  }
+
+  function openPeople() {
+    setSelection({ kind: 'people' })
+    setMenuOpen(false)
+  }
+
+  useEffect(() => {
+    localStorage.setItem(ASSIGNMENTS_KEY, JSON.stringify(assignments))
+  }, [assignments])
+
+  useEffect(() => {
+    localStorage.setItem(DAY_HOURS_KEY, JSON.stringify(dayHours))
+  }, [dayHours])
+
+  async function onScheduleFile(event) {
+    const file = event.target.files?.[0]
+    event.target.value = ''
+    if (!file) return
+
+    try {
+      const result = readScheduleFile(await file.arrayBuffer(), offices, people, dayHours)
+      setAssignments(result.assignments)
+      setScheduleNotice({
+        error: false,
+        text: scheduleMessage(result.skippedSheets, result.skippedRows),
+      })
+    } catch (error) {
+      setScheduleNotice({
+        error: true,
+        text: error instanceof Error ? error.message : 'This schedule could not be read.',
+      })
+    }
   }
 
   useEffect(() => {
@@ -256,9 +421,22 @@ function App() {
       )}
       <aside id="sidebar" className="sidebar" inert={narrow && !menuOpen ? true : undefined}>
         <div className="load-bar">
+          <button type="button" className="load-button" onClick={() => downloadSchedule(offices, assignments)}>
+            Save schedule
+          </button>
+          <button type="button" className="load-button" onClick={() => scheduleInput.current?.click()}>
+            Load schedule
+          </button>
           <button type="button" className="load-button" onClick={() => fileInput.current?.click()}>
             Load people
           </button>
+          <input
+            ref={scheduleInput}
+            type="file"
+            accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            hidden
+            onChange={onScheduleFile}
+          />
           <input
             ref={fileInput}
             type="file"
@@ -266,6 +444,11 @@ function App() {
             hidden
             onChange={onPeopleFile}
           />
+          {scheduleNotice && (
+            <p className={scheduleNotice.error ? 'load-error' : 'schedule-message'} role="status">
+              {scheduleNotice.text}
+            </p>
+          )}
           {loadError && (
             <p className="load-error" role="alert">
               {loadError}
@@ -274,6 +457,23 @@ function App() {
         </div>
 
         <div className="menu">
+          <button
+            type="button"
+            className={selection?.kind === 'schedule' ? 'menu-link is-selected' : 'menu-link'}
+            aria-current={selection?.kind === 'schedule' ? 'page' : undefined}
+            onClick={openSchedule}
+          >
+            Schedule
+          </button>
+          <button
+            type="button"
+            className={selection?.kind === 'people' ? 'menu-link is-selected' : 'menu-link'}
+            aria-current={selection?.kind === 'people' ? 'page' : undefined}
+            onClick={openPeople}
+          >
+            <span>People</span>
+            <span className="menu-count">{people.length}</span>
+          </button>
           <section className={officesOpen ? 'menu-section is-open' : 'menu-section'}>
             <button
               type="button"
@@ -312,126 +512,117 @@ function App() {
               </ul>
             )}
           </section>
-
-          <section className={peopleOpen ? 'menu-section is-open' : 'menu-section'}>
-            <button
-              type="button"
-              className="menu-toggle"
-              aria-expanded={peopleOpen}
-              aria-controls="people-list"
-              onClick={() => setPeopleOpen((open) => !open)}
-            >
-              <span>People</span>
-              <span className="menu-count">{people.length}</span>
-              <Chevron />
-            </button>
-            {peopleOpen && (
-              <ul className="office-list" id="people-list">
-                {people.length === 0 ? (
-                  <li className="people-empty">No people loaded.</li>
-                ) : (
-                  groupPeopleByOffice(people).map((group) => {
-                    const isOpen = openPeopleOffice === group.id
-                    const panelId = `people-${group.id.replaceAll(' ', '-')}`
-                    return (
-                      <li key={group.id}>
-                        <button
-                          type="button"
-                          className="menu-toggle is-nested"
-                          aria-expanded={isOpen}
-                          aria-controls={panelId}
-                          onClick={() =>
-                            setOpenPeopleOffice((current) => (current === group.id ? null : group.id))
-                          }
-                        >
-                          <span className={group.known ? undefined : 'person-office is-unknown'}>
-                            {group.id}
-                          </span>
-                          <span className="menu-count">{group.people.length}</span>
-                          <Chevron />
-                        </button>
-                        {isOpen && (
-                          <ul className="office-list" id={panelId}>
-                            {group.people.map(({ person, index }) => {
-                              const isSelected = selection?.kind === 'person' && selection.index === index
-                              return (
-                                <li key={`${person.name}-${index}`}>
-                                  <button
-                                    type="button"
-                                    className={isSelected ? 'person-item is-selected' : 'person-item'}
-                                    aria-current={isSelected ? 'true' : undefined}
-                                    onClick={() => selectPerson(index)}
-                                  >
-                                    <span className="office-name">{person.name}</span>
-                                  </button>
-                                </li>
-                              )
-                            })}
-                          </ul>
-                        )}
-                      </li>
-                    )
-                  })
-                )}
-              </ul>
-            )}
-          </section>
         </div>
       </aside>
 
-      {people.length === 0 ? (
+      {selection?.kind === 'schedule' ? (
+        <ScheduleView
+          offices={offices}
+          people={people}
+          assignments={assignments}
+          onAssignmentsChange={setAssignments}
+          dayHours={dayHours}
+          onDayHoursChange={setDayHours}
+        />
+      ) : selection?.kind === 'people' ? (
+        <PeoplePage people={people} onSelect={selectPerson} />
+      ) : people.length === 0 ? (
         <Home onFile={loadPeopleFile} error={loadError} />
       ) : (
       <main className="main">
         {selectedPerson ? (
           <PersonDetail person={selectedPerson} />
         ) : selectedOffice ? (
-          <article className="office-detail">
-            <p className="detail-kicker">{selectedOffice.municipality}</p>
-            <h2>{selectedOffice.name}</h2>
-            <p className="detail-id">{selectedOffice.id}</p>
-            <span className="level detail-level" data-level={selectedOffice.level}>
-              Level {selectedOffice.level}
-            </span>
+          <div className="office-view">
+            <header className="office-head">
+              <p className="detail-kicker">{selectedOffice.municipality}</p>
+              <h2>{selectedOffice.name}</h2>
+              <p className="office-head-meta">
+                <span className="detail-id">{selectedOffice.id}</span>
+                <span className="level" data-level={selectedOffice.level}>
+                  Level {selectedOffice.level}
+                </span>
+              </p>
+            </header>
 
-            <section className="detail-section">
-              <h3>Address</h3>
-              <p className="address">{formatAddress(selectedOffice.address)}</p>
-            </section>
+            <div className="office-cards">
+              <section className="info-card">
+                <h3>Address</h3>
+                <p className="address">{formatAddress(selectedOffice.address)}</p>
+              </section>
 
-            <section className="detail-section">
-              <h3>Opening hours</h3>
-              <table className="hours">
-                <tbody>
-                  {selectedOffice.openingHours.map((entry) => (
-                    <tr key={entry.day}>
-                      <th scope="row">{formatDay(entry.day)}</th>
-                      <td className={entry.slots.length === 0 ? 'is-closed' : undefined}>
-                        {formatSlots(entry.slots)}
+              <section className="info-card">
+                <h3>Staff shifts</h3>
+                <table className="hours">
+                  <tbody>
+                    <tr>
+                      <th scope="row">{SHIFTS.mattina.label}</th>
+                      <td>
+                        {SHIFTS.mattina.from}–{SHIFTS.mattina.to}
                       </td>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </section>
+                    <tr>
+                      <th scope="row">{SHIFTS.pomeriggio.label}</th>
+                      <td className={selectedOffice.openAfternoon ? undefined : 'is-closed'}>
+                        {selectedOffice.openAfternoon
+                          ? `${SHIFTS.pomeriggio.from}–${SHIFTS.pomeriggio.to}`
+                          : 'Closed'}
+                      </td>
+                    </tr>
+                    <tr>
+                      <th scope="row">{SHIFTS.sabato.label}</th>
+                      <td className={selectedOffice.openSaturday ? undefined : 'is-closed'}>
+                        {selectedOffice.openSaturday
+                          ? `${SHIFTS.sabato.from}–${SHIFTS.sabato.to}`
+                          : 'Closed'}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </section>
 
-            <section className="detail-section">
-              <h3>People</h3>
-              {assigned.length === 0 ? (
-                <p className="assigned-empty">No people are assigned.</p>
-              ) : (
-                <ul className="assigned-people">
-                  {assigned.map(({ person, index }) => (
-                    <li key={`${person.name}-${index}`}>
-                      <button type="button" onClick={() => selectPerson(index)}>
-                        {person.name}
-                      </button>
+              <section className="info-card info-card-wide">
+                <h3>Opening hours</h3>
+                <ul className="hours-grid">
+                  {selectedOffice.openingHours.map((entry) => (
+                    <li key={entry.day} className={entry.day === 'domenica' ? 'is-sunday' : undefined}>
+                      <span>{formatDay(entry.day)}</span>
+                      <span className={entry.slots.length === 0 ? 'is-closed' : undefined}>
+                        {formatSlots(entry.slots)}
+                      </span>
                     </li>
                   ))}
                 </ul>
-              )}
-            </section>
-          </article>
+              </section>
+
+              <section className="info-card info-card-wide">
+                <h3>Schedule</h3>
+                <OfficeCalendar
+                  office={selectedOffice}
+                  people={people}
+                  assignments={assignments}
+                  onAssignmentsChange={setAssignments}
+                  dayHours={dayHours}
+                  onDayHoursChange={setDayHours}
+                />
+              </section>
+
+              <details className="info-card info-card-wide people-accordion">
+                <summary>
+                  <span>People</span>
+                  <span className="menu-count">{assigned.length}</span>
+                  <Chevron />
+                </summary>
+                <div className="people-accordion-body">
+                  <PeopleTable
+                    rows={assigned.map(({ person, index }) => ({ person, index, office: selectedOffice }))}
+                    onSelect={selectPerson}
+                    empty="No people are assigned."
+                  />
+                </div>
+              </details>
+            </div>
+          </div>
         ) : (
           <div className="empty">
             <h2>Select an office or a person</h2>
