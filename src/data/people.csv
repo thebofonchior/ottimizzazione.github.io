@@ -1,22 +1,21 @@
-name,officeId,address,phone
-Mario Rossi,porto-mantovano,"Via Roma, 12, 46047 Porto Mantovano",333 120 4410
-Laura Bianchi,porto-mantovano,"Via Ronchi, 3, 46027 San Benedetto Po",347 882 1903
-Giulia Ferrari,porto-mantovano,"Via Matteotti, 6, 46033 Castel D'Ario",328 551 7742
-Andrea Conti,roverbella,"Via Dante, 9, 46048 Roverbella",339 640 2281
-Chiara Romano,roverbella,"Piazza della LibertÃ , 2, 46048 Roverbella",340 915 6630
-Luca Greco,mantova-3,"Via Chiassi, 15, 46100 Mantova",333 778 2044
-Francesca Ricci,mantova-3,"Corso Vittorio Emanuele, 48, 46100 Mantova",347 220 9186
-Marco Galli,mantova-3,"Via Valeggio, 2, 46040 Solferino",328 441 7759
-Elena Martini,mantova-3,"Strada Cipata, 21, 46100 Mantova",339 102 5583
-Paolo Rizzi,malavicina,"Via Malavicina, 8, 46048 Roverbella",340 667 3312
-Sara Colombo,malavicina,"Via dei Tigli, 3, 46048 Malavicina",333 904 6621
-Davide Fontana,mantova-5,"Via Della Libertà, 7, 46010 Levata",347 551 2088
-Silvia Moretti,mantova-5,"Via Bonomi, 11, 46029 Suzzara",328 773 4405
-Giovanni Barbieri,soave-mantovano,"Via Soave, 18, 46047 Porto Mantovano",339 228 9174
-Anna Lombardi,castelbelforte,"Via Roma, 5, 46032 Castelbelforte",340 816 2250
-Matteo Serra,castelbelforte,"Via Matteotti, 14, 46032 Castelbelforte",333 459 7706
-Valentina Costa,castellucchio,"Via Matteotti, 7, 46014 Castellucchio",347 663 1289
-Roberto Ferri,marmirolo,"Via Roma, 22, 46045 Marmirolo",328 990 4417
-Elisa Marchetti,marmirolo,"Via Dante Alighieri, 10, 46045 Marmirolo",339 714 5528
-Alessandro Villa,rivalta-sul-mincio,"Via della Chiesa, 9, 46040 Rivalta sul Mincio",340 225 8831
-
+name,officeId,address,phone,role
+Mario Rossi,porto-mantovano,"Via Roma, 12, 46047 Porto Mantovano",333 120 4410,DZ
+Laura Bianchi,porto-mantovano,"Via Ronchi, 3, 46027 San Benedetto Po",347 882 1903,RGOZ
+Giulia Ferrari,porto-mantovano,"Via Matteotti, 6, 46033 Castel D'Ario",328 551 7742,RCZ
+Andrea Conti,roverbella,"Via Dante, 9, 46048 Roverbella",339 640 2281,COLLABORATORE
+Chiara Romano,roverbella,"Piazza della LibertÃ , 2, 46048 Roverbella",340 915 6630,SCM
+Luca Greco,mantova-3,"Via Chiassi, 15, 46100 Mantova",333 778 2044,SCF
+Francesca Ricci,mantova-3,"Corso Vittorio Emanuele, 48, 46100 Mantova",347 220 9186,OFE
+Marco Galli,mantova-3,"Via Valeggio, 2, 46040 Solferino",328 441 7759,OSP
+Elena Martini,mantova-3,"Strada Cipata, 21, 46100 Mantova",339 102 5583,DZ
+Paolo Rizzi,malavicina,"Via Malavicina, 8, 46048 Roverbella",340 667 3312,RGOZ
+Sara Colombo,malavicina,"Via dei Tigli, 3, 46048 Malavicina",333 904 6621,RCZ
+Davide Fontana,mantova-5,"Via Della Libertà, 7, 46010 Levata",347 551 2088,COLLABORATORE
+Silvia Moretti,mantova-5,"Via Bonomi, 11, 46029 Suzzara",328 773 4405,SCM
+Giovanni Barbieri,soave-mantovano,"Via Soave, 18, 46047 Porto Mantovano",339 228 9174,SCF
+Anna Lombardi,castelbelforte,"Via Roma, 5, 46032 Castelbelforte",340 816 2250,OFE
+Matteo Serra,castelbelforte,"Via Matteotti, 14, 46032 Castelbelforte",333 459 7706,OSP
+Valentina Costa,castellucchio,"Via Matteotti, 7, 46014 Castellucchio",347 663 1289,DZ
+Roberto Ferri,marmirolo,"Via Roma, 22, 46045 Marmirolo",328 990 4417,RGOZ
+Elisa Marchetti,marmirolo,"Via Dante Alighieri, 10, 46045 Marmirolo",339 714 5528,RCZ
+Alessandro Villa,rivalta-sul-mincio,"Via della Chiesa, 9, 46040 Rivalta sul Mincio",340 225 8831,COLLABORATORE

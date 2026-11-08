@@ -246,8 +246,8 @@ export function OfficeCalendar({ office, people, assignments, onAssignmentsChang
     <div className="office-calendar">
       <p className="schedule-shifts">
         Mattina 08:00–14:10
-        {office.openAfternoon ? ' · Pomeriggio 13:30–19:40' : ' · Afternoon closed'}
-        {office.openSaturday ? ' · Sabato 08:00–13:10' : ' · Saturday closed'}
+        {office.openAfternoon ? ' · Pomeriggio 13:30–19:40' : ' · Pomeriggio chiuso'}
+        {office.openSaturday ? ' · Sabato 08:00–13:10' : ' · Sabato chiuso'}
       </p>
       <div className="cal-scroll">
           <div className="cal">
@@ -261,7 +261,7 @@ export function OfficeCalendar({ office, people, assignments, onAssignmentsChang
                   key={day}
                   type="button"
                   className={className}
-                  aria-label={`Opening hours for ${labelDay(day)}`}
+                  aria-label={`Orari di apertura di ${labelDay(day)}`}
                   onClick={() => openDayHours(day)}
                 >
                   <span className="cal-dayname">{labelDay(day)}</span>
@@ -272,7 +272,7 @@ export function OfficeCalendar({ office, people, assignments, onAssignmentsChang
                             {shift.from}–{shift.to}
                           </span>
                         ))
-                      : 'Closed'}
+                      : 'Chiuso'}
                   </span>
                 </button>
               )
@@ -335,7 +335,7 @@ export function OfficeCalendar({ office, people, assignments, onAssignmentsChang
                   {unavailable.map((region) => (
                     <div key={`${region.top}`} className="cal-unavailable" style={region} />
                   ))}
-                  {!openWindow && <p className="cal-closed-label">Closed</p>}
+                  {!openWindow && <p className="cal-closed-label">Chiuso</p>}
                   {dayBlocks.map((block) => {
                     const [background, border, text] = colorFor(block.name)
                     const height = Math.max(topFor(block.end, gridStart) - topFor(block.start, gridStart), 22)
@@ -353,7 +353,7 @@ export function OfficeCalendar({ office, people, assignments, onAssignmentsChang
                           borderColor: border,
                           color: text,
                         }}
-                        aria-label={`Edit ${block.name}, ${block.from} to ${block.to}`}
+                        aria-label={`Modifica ${block.name}, dalle ${block.from} alle ${block.to}`}
                         onClick={(event) => {
                           event.stopPropagation()
                           openEdit(block)
@@ -375,7 +375,7 @@ export function OfficeCalendar({ office, people, assignments, onAssignmentsChang
         </div>
       {!draft && !hoursDraft && (
         <p className="schedule-hint">
-          Click a day name to change opening hours. Click the calendar to add a person.
+          Clicca il nome del giorno per cambiare gli orari di apertura. Clicca il calendario per aggiungere una persona.
         </p>
       )}
 
@@ -389,11 +389,11 @@ export function OfficeCalendar({ office, people, assignments, onAssignmentsChang
             onClick={(event) => event.stopPropagation()}
             onSubmit={saveHours}
           >
-            <h2 id={`${office.id}-hours-title`}>{draft.original ? 'Change hours' : 'Add hours'}</h2>
+            <h2 id={`${office.id}-hours-title`}>{draft.original ? 'Modifica orario' : 'Aggiungi orario'}</h2>
             <p className="hours-day">{labelDay(draft.day)}</p>
             {draftWindow && (
               <p className="shift-note">
-                Choose a shift, or set the start and end. Hours stay inside {draftWindow.from}–{draftWindow.to}.
+                Scegli un turno, oppure imposta inizio e fine. L'orario resta dentro {draftWindow.from}–{draftWindow.to}.
               </p>
             )}
             <div className="shift-presets">
@@ -414,7 +414,7 @@ export function OfficeCalendar({ office, people, assignments, onAssignmentsChang
             </div>
             <div className="hours-times">
               <label>
-                Start
+                Inizio
                 <input
                   ref={startInput}
                   type="time"
@@ -425,7 +425,7 @@ export function OfficeCalendar({ office, people, assignments, onAssignmentsChang
                 />
               </label>
               <label>
-                End
+                Fine
                 <input
                   type="time"
                   step={600}
@@ -436,16 +436,16 @@ export function OfficeCalendar({ office, people, assignments, onAssignmentsChang
               </label>
             </div>
             {roster.length === 0 ? (
-              <p className="shift-note">No people are assigned to this office.</p>
+              <p className="shift-note">Nessuna persona è assegnata a questo ufficio.</p>
             ) : (
               <label>
-                Person
+                Persona
                 <select
                   value={draft.name}
                   onChange={(event) => setDraft({ ...draft, name: event.target.value })}
                   required
                 >
-                  <option value="">Choose</option>
+                  <option value="">Scegli</option>
                   {roster.map((person) => (
                     <option key={person.name} value={person.name}>
                       {person.name}
@@ -455,22 +455,22 @@ export function OfficeCalendar({ office, people, assignments, onAssignmentsChang
               </label>
             )}
             {!draftFits && draft.from && draft.to && draftWindow && (
-              <p className="load-error">Hours have to stay inside {draftWindow.from}–{draftWindow.to}.</p>
+              <p className="load-error">L'orario deve restare dentro {draftWindow.from}–{draftWindow.to}.</p>
             )}
             {draftFits && draftOverlap && (
-              <p className="load-error">{draft.name} already has hours in that range.</p>
+              <p className="load-error">{draft.name} ha già un orario in questa fascia.</p>
             )}
             <div className="hours-actions">
               {draft.original && (
                 <button type="button" className="choose-button hours-remove" onClick={removeHours}>
-                  Remove
+                  Rimuovi
                 </button>
               )}
               <button type="button" className="choose-button" onClick={() => setDraft(null)}>
-                Cancel
+                Annulla
               </button>
               <button type="submit" className="choose-button" disabled={!draft.name || !draftFits || draftOverlap}>
-                {draft.original ? 'Save' : 'Add'}
+                {draft.original ? 'Salva' : 'Aggiungi'}
               </button>
             </div>
           </form>
@@ -487,10 +487,10 @@ export function OfficeCalendar({ office, people, assignments, onAssignmentsChang
             onClick={(event) => event.stopPropagation()}
             onSubmit={saveDayHours}
           >
-            <h2 id={`${office.id}-opening-title`}>Opening hours</h2>
+            <h2 id={`${office.id}-opening-title`}>Orari di apertura</h2>
             <p className="hours-day">{labelDay(hoursDraft.day)}</p>
             <p className="shift-note">
-              Change a shift’s hours, or turn one shift off. People can only be scheduled inside the shifts that stay on.
+              Modifica l'orario di un turno, oppure disattivalo. Le persone si possono assegnare solo ai turni attivi.
             </p>
             <label className="hours-closed">
               <input
@@ -498,7 +498,7 @@ export function OfficeCalendar({ office, people, assignments, onAssignmentsChang
                 checked={hoursDraft.closed}
                 onChange={(event) => setHoursDraft({ ...hoursDraft, closed: event.target.checked })}
               />
-              Closed for the day
+              Chiuso per tutto il giorno
             </label>
             {hoursDraft.shifts.map((shift, index) => (
               <div key={shift.id} className="shift-row">
@@ -513,7 +513,7 @@ export function OfficeCalendar({ office, people, assignments, onAssignmentsChang
                 </label>
                 <div className="hours-times">
                   <label>
-                    Start
+                    Inizio
                     <input
                       ref={index === 0 ? openingStart : undefined}
                       type="time"
@@ -524,7 +524,7 @@ export function OfficeCalendar({ office, people, assignments, onAssignmentsChang
                     />
                   </label>
                   <label>
-                    End
+                    Fine
                     <input
                       type="time"
                       step={600}
@@ -537,17 +537,17 @@ export function OfficeCalendar({ office, people, assignments, onAssignmentsChang
               </div>
             ))}
             {!hoursDraft.closed && enabledShifts.length === 0 && (
-              <p className="load-error">Turn on a shift, or close the day.</p>
+              <p className="load-error">Attiva un turno, oppure chiudi la giornata.</p>
             )}
             {!hoursDraft.closed && enabledShifts.length > 0 && !hoursRangeOk && (
-              <p className="load-error">Each open shift needs an end after the start.</p>
+              <p className="load-error">Ogni turno aperto deve finire dopo l'inizio.</p>
             )}
             <div className="hours-actions">
               <button type="button" className="choose-button" onClick={() => setHoursDraft(null)}>
-                Cancel
+                Annulla
               </button>
               <button type="submit" className="choose-button" disabled={!hoursRangeOk}>
-                Save
+                Salva
               </button>
             </div>
           </form>

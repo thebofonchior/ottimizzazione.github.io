@@ -256,7 +256,7 @@ export function readScheduleFile(buffer, offices, people, dayHours) {
   try {
     workbook = XLSX.read(buffer, { type: 'array' })
   } catch {
-    throw new Error('This schedule could not be read.')
+    throw new Error('Impossibile leggere questi turni.')
   }
 
   const officesById = new Map(offices.map((office) => [office.id, office]))
@@ -318,8 +318,8 @@ export function readScheduleFile(buffer, offices, people, dayHours) {
 }
 
 export function scheduleMessage(skippedSheets, skippedRows) {
-  if (skippedSheets === 0 && skippedRows === 0) return 'Schedule loaded.'
-  const sheets = skippedSheets === 1 ? '1 sheet' : `${skippedSheets} sheets`
-  const rows = skippedRows === 1 ? '1 row' : `${skippedRows} rows`
-  return `Schedule loaded. Skipped ${sheets} and ${rows} that did not match an office, the open shifts, or a person.`
+  if (skippedSheets === 0 && skippedRows === 0) return 'Turni caricati.'
+  const sheets = skippedSheets === 1 ? '1 foglio' : `${skippedSheets} fogli`
+  const rows = skippedRows === 1 ? '1 riga' : `${skippedRows} righe`
+  return `Turni caricati. Ignorati ${sheets} e ${rows} che non corrispondono a un ufficio, ai turni aperti o a una persona.`
 }

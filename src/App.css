@@ -548,6 +548,12 @@ button.cal-dayhead.is-current:hover {
   margin-left: auto;
 }
 
+.menu-link-end {
+  margin-top: auto;
+  margin-bottom: 0;
+  flex-shrink: 0;
+}
+
 .menu-section {
   display: flex;
   flex-direction: column;
@@ -556,6 +562,12 @@ button.cal-dayhead.is-current:hover {
 
 .menu-section.is-open {
   flex: 1;
+  overflow: hidden;
+}
+
+.menu-section.is-open > .office-list {
+  flex: 1;
+  min-height: 0;
 }
 
 .menu-toggle {
@@ -709,9 +721,29 @@ button.cal-dayhead.is-current:hover {
   font-size: 13px;
 }
 
+.people-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.people-export {
+  margin-top: 0;
+  flex-shrink: 0;
+}
+
+.person-role {
+  margin-top: 8px;
+  color: var(--text-strong);
+  font-size: 13px;
+  font-weight: 650;
+  letter-spacing: 0.04em;
+}
+
 .people-tools {
   display: grid;
-  grid-template-columns: minmax(180px, 1.4fr) repeat(2, minmax(140px, 1fr));
+  grid-template-columns: minmax(180px, 1.6fr) repeat(3, minmax(120px, 1fr));
   gap: 12px;
   margin-top: 20px;
 }
@@ -790,6 +822,7 @@ button.cal-dayhead.is-current:hover {
 
 .people-table {
   width: 100%;
+  min-width: 760px;
   border-collapse: collapse;
   font-size: 14px;
 }
@@ -828,7 +861,8 @@ button.cal-dayhead.is-current:hover {
 }
 
 .people-table td:nth-child(2),
-.people-table td:nth-child(4) {
+.people-table td:nth-child(4),
+.people-table td:nth-child(5) {
   white-space: nowrap;
 }
 

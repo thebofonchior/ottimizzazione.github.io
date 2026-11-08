@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import offices from './data/uffici.json'
 import peopleCsv from './data/people.csv?raw'
-import { parsePeopleFile } from './parsePeople.js'
+import { parsePeopleFile, downloadPeople, ROLES } from './parsePeople.js'
 import { SHIFTS, readScheduleFile, scheduleMessage, scheduleToBytes } from './schedule.js'
 import { OfficeCalendar, ScheduleView } from './ScheduleView.jsx'
 import './App.css'
@@ -45,8 +45,12 @@ function formatDay(day) {
 }
 
 function formatSlots(slots) {
-  if (slots.length === 0) return 'Closed'
+  if (slots.length === 0) return 'Chiuso'
   return slots.map((slot) => `${slot.from}–${slot.to}`).join(', ')
+}
+
+function peopleLabel(count) {
+  return count === 1 ? '1 persona' : `${count} persone`
 }
 
 function findOffice(officeId) {
@@ -73,21 +77,22 @@ function PersonDetail({ person }) {
 
   return (
     <article className="office-detail">
-      <p className="detail-kicker">Person</p>
+      <p className="detail-kicker">Persona</p>
       <h2>{person.name}</h2>
+      <p className="person-role">{person.role || 'Nessun ruolo'}</p>
 
       <section className="detail-section">
-        <h3>Home address</h3>
-        <p className="address">{person.address || 'No address'}</p>
+        <h3>Indirizzo</h3>
+        <p className="address">{person.address || 'Nessun indirizzo'}</p>
       </section>
 
       <section className="detail-section">
-        <h3>Phone</h3>
-        <p className="address">{person.phone || 'No phone number'}</p>
+        <h3>Telefono</h3>
+        <p className="address">{person.phone || 'Nessun numero di telefono'}</p>
       </section>
 
       <section className="detail-section">
-        <h3>Office</h3>
+        <h3>Ufficio</h3>
         {office ? (
           <>
             <p className="address">{office.name}</p>
@@ -98,7 +103,7 @@ function PersonDetail({ person }) {
           </>
         ) : (
           <p className="assigned-empty">
-            {person.officeId ? `${person.officeId} is not a known office.` : 'No office is assigned.'}
+            {person.officeId ? `${person.officeId} non è un ufficio conosciuto.` : 'Nessun ufficio assegnato.'}
           </p>
         )}
       </section>
@@ -113,10 +118,11 @@ function PeopleTable({ rows, onSelect, empty }) {
     <table className="people-table">
       <thead>
         <tr>
-          <th scope="col">Name</th>
-          <th scope="col">Office</th>
-          <th scope="col">Address</th>
-          <th scope="col">Phone</th>
+          <th scope="col">Nome</th>
+          <th scope="col">Ufficio</th>
+          <th scope="col">Indirizzo</th>
+          <th scope="col">Telefono</th>
+          <th scope="col">Ruolo</th>
         </tr>
       </thead>
       <tbody>
@@ -131,11 +137,12 @@ function PeopleTable({ rows, onSelect, empty }) {
               {office ? (
                 office.name
               ) : (
-                <span className="person-office is-unknown">{person.officeId || 'No office'}</span>
+                <span className="person-office is-unknown">{person.officeId || 'Nessun ufficio'}</span>
               )}
             </td>
             <td>{person.address || '—'}</td>
             <td>{person.phone || '—'}</td>
+            <td>{person.role || '—'}</td>
           </tr>
         ))}
       </tbody>
@@ -147,6 +154,7 @@ function PeoplePage({ people, onSelect }) {
   const [query, setQuery] = useState('')
   const [officeId, setOfficeId] = useState('')
   const [municipality, setMunicipality] = useState('')
+  const [role, setRole] = useState('')
   const municipalities = [...new Set(offices.map((office) => office.municipality))].sort((a, b) =>
     a.localeCompare(b),
   )
@@ -160,7 +168,12 @@ function PeoplePage({ people, onSelect }) {
       return []
     }
     if (municipality && office?.municipality !== municipality) return []
-    const haystack = [person.name, person.address, person.phone, person.officeId, office?.name, office?.municipality]
+    if (role === 'none') {
+      if (person.role) return []
+    } else if (role && person.role !== role) {
+      return []
+    }
+    const haystack = [person.name, person.address, person.phone, person.role, person.officeId, office?.name, office?.municipality]
       .filter(Boolean)
       .join(' ')
       .toLowerCase()
@@ -170,48 +183,67 @@ function PeoplePage({ people, onSelect }) {
 
   return (
     <main className="main people-page">
-      <header className="office-head">
-        <p className="detail-kicker">People</p>
-        <h2>All people</h2>
-        <p className="people-summary">
-          {rows.length === people.length ? `${people.length} people` : `${rows.length} of ${people.length}`}
-        </p>
+      <header className="office-head people-head">
+        <div>
+          <p className="detail-kicker">Persone</p>
+          <h2>Tutte le persone</h2>
+          <p className="people-summary">
+            {rows.length === people.length
+              ? peopleLabel(people.length)
+              : `${rows.length} di ${peopleLabel(people.length)}`}
+          </p>
+        </div>
+        <button type="button" className="choose-button people-export" onClick={() => downloadPeople(people)}>
+          Esporta Excel
+        </button>
       </header>
 
       <div className="people-tools">
         <label>
-          Search
+          Cerca
           <input
             type="search"
             value={query}
-            placeholder="Name, address, or phone"
+            placeholder="Nome, indirizzo, telefono o ruolo"
             onChange={(event) => setQuery(event.target.value)}
           />
         </label>
         <label>
-          Office
+          Ufficio
           <select
             value={officeOptions.some((office) => office.id === officeId) || officeId === 'unknown' ? officeId : ''}
             onChange={(event) => setOfficeId(event.target.value)}
           >
-            <option value="">All offices</option>
+            <option value="">Tutti gli uffici</option>
             {officeOptions.map((office) => (
               <option key={office.id} value={office.id}>
                 {office.name}
               </option>
             ))}
-            <option value="unknown">Unknown office</option>
+            <option value="unknown">Ufficio sconosciuto</option>
           </select>
         </label>
         <label>
-          Municipality
+          Comune
           <select value={municipality} onChange={(event) => setMunicipality(event.target.value)}>
-            <option value="">All municipalities</option>
+            <option value="">Tutti i comuni</option>
             {municipalities.map((name) => (
               <option key={name} value={name}>
                 {name}
               </option>
             ))}
+          </select>
+        </label>
+        <label>
+          Ruolo
+          <select value={role} onChange={(event) => setRole(event.target.value)}>
+            <option value="">Tutti i ruoli</option>
+            {ROLES.map((item) => (
+              <option key={item} value={item}>
+                {item}
+              </option>
+            ))}
+            <option value="none">Nessun ruolo</option>
           </select>
         </label>
       </div>
@@ -220,7 +252,7 @@ function PeoplePage({ people, onSelect }) {
         <PeopleTable
           rows={rows}
           onSelect={onSelect}
-          empty={people.length === 0 ? 'No people loaded.' : 'No people match this search.'}
+          empty={people.length === 0 ? 'Nessuna persona caricata.' : 'Nessuna persona corrisponde alla ricerca.'}
         />
       </section>
     </main>
@@ -256,13 +288,14 @@ function Home({ onFile, error }) {
           takeFile(event.dataTransfer.files?.[0])
         }}
       >
-        <h1>Load a people file</h1>
+        <h1>Carica un file persone</h1>
         <p>
-          Drop a CSV or Excel file here, or choose one from your computer. The file needs columns
-          for name, office id, home address, and phone number.
+          Trascina qui un file CSV o Excel, oppure scegline uno dal computer. Il file deve avere le
+          colonne nome, id ufficio, indirizzo e telefono. La colonna ruolo può contenere DZ, RGOZ,
+          RCZ, COLLABORATORE, SCM, SCF, OFE oppure OSP.
         </p>
         <button type="button" className="choose-button" onClick={() => fileInput.current?.click()}>
-          Choose file
+          Scegli file
         </button>
         <input
           ref={fileInput}
@@ -333,7 +366,7 @@ function App() {
       setMenuOpen(false)
       setSelection((current) => (current?.kind === 'person' ? null : current))
     } catch (error) {
-      setLoadError(error instanceof Error ? error.message : 'This file could not be read.')
+      setLoadError(error instanceof Error ? error.message : 'Impossibile leggere questo file.')
     }
   }
 
@@ -386,7 +419,7 @@ function App() {
     } catch (error) {
       setScheduleNotice({
         error: true,
-        text: error instanceof Error ? error.message : 'This schedule could not be read.',
+        text: error instanceof Error ? error.message : 'Impossibile leggere questi turni.',
       })
     }
   }
@@ -407,7 +440,7 @@ function App() {
           <button
             type="button"
             className="burger"
-            aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+            aria-label={menuOpen ? 'Chiudi menu' : 'Apri menu'}
             aria-expanded={menuOpen}
             aria-controls="sidebar"
             onClick={() => setMenuOpen((open) => !open)}
@@ -417,18 +450,18 @@ function App() {
         </header>
       )}
       {narrow && menuOpen && (
-        <button type="button" className="backdrop" aria-label="Close menu" onClick={() => setMenuOpen(false)} />
+        <button type="button" className="backdrop" aria-label="Chiudi menu" onClick={() => setMenuOpen(false)} />
       )}
       <aside id="sidebar" className="sidebar" inert={narrow && !menuOpen ? true : undefined}>
         <div className="load-bar">
           <button type="button" className="load-button" onClick={() => downloadSchedule(offices, assignments)}>
-            Save schedule
+            Salva turni
           </button>
           <button type="button" className="load-button" onClick={() => scheduleInput.current?.click()}>
-            Load schedule
+            Carica turni
           </button>
           <button type="button" className="load-button" onClick={() => fileInput.current?.click()}>
-            Load people
+            Carica persone
           </button>
           <input
             ref={scheduleInput}
@@ -463,16 +496,7 @@ function App() {
             aria-current={selection?.kind === 'schedule' ? 'page' : undefined}
             onClick={openSchedule}
           >
-            Schedule
-          </button>
-          <button
-            type="button"
-            className={selection?.kind === 'people' ? 'menu-link is-selected' : 'menu-link'}
-            aria-current={selection?.kind === 'people' ? 'page' : undefined}
-            onClick={openPeople}
-          >
-            <span>People</span>
-            <span className="menu-count">{people.length}</span>
+            Turni
           </button>
           <section className={officesOpen ? 'menu-section is-open' : 'menu-section'}>
             <button
@@ -482,7 +506,7 @@ function App() {
               aria-controls="office-list"
               onClick={() => setOfficesOpen((open) => !open)}
             >
-              <span>Offices</span>
+              <span>Uffici</span>
               <span className="menu-count">{offices.length}</span>
               <Chevron />
             </button>
@@ -512,6 +536,15 @@ function App() {
               </ul>
             )}
           </section>
+          <button
+            type="button"
+            className={selection?.kind === 'people' ? 'menu-link menu-link-end is-selected' : 'menu-link menu-link-end'}
+            aria-current={selection?.kind === 'people' ? 'page' : undefined}
+            onClick={openPeople}
+          >
+            <span>Persone</span>
+            <span className="menu-count">{people.length}</span>
+          </button>
         </div>
       </aside>
 
@@ -540,19 +573,19 @@ function App() {
               <p className="office-head-meta">
                 <span className="detail-id">{selectedOffice.id}</span>
                 <span className="level" data-level={selectedOffice.level}>
-                  Level {selectedOffice.level}
+                  Livello {selectedOffice.level}
                 </span>
               </p>
             </header>
 
             <div className="office-cards">
               <section className="info-card">
-                <h3>Address</h3>
+                <h3>Indirizzo</h3>
                 <p className="address">{formatAddress(selectedOffice.address)}</p>
               </section>
 
               <section className="info-card">
-                <h3>Staff shifts</h3>
+                <h3>Turni del personale</h3>
                 <table className="hours">
                   <tbody>
                     <tr>
@@ -566,7 +599,7 @@ function App() {
                       <td className={selectedOffice.openAfternoon ? undefined : 'is-closed'}>
                         {selectedOffice.openAfternoon
                           ? `${SHIFTS.pomeriggio.from}–${SHIFTS.pomeriggio.to}`
-                          : 'Closed'}
+                          : 'Chiuso'}
                       </td>
                     </tr>
                     <tr>
@@ -574,7 +607,7 @@ function App() {
                       <td className={selectedOffice.openSaturday ? undefined : 'is-closed'}>
                         {selectedOffice.openSaturday
                           ? `${SHIFTS.sabato.from}–${SHIFTS.sabato.to}`
-                          : 'Closed'}
+                          : 'Chiuso'}
                       </td>
                     </tr>
                   </tbody>
@@ -582,7 +615,7 @@ function App() {
               </section>
 
               <section className="info-card info-card-wide">
-                <h3>Opening hours</h3>
+                <h3>Orari di apertura</h3>
                 <ul className="hours-grid">
                   {selectedOffice.openingHours.map((entry) => (
                     <li key={entry.day} className={entry.day === 'domenica' ? 'is-sunday' : undefined}>
@@ -596,7 +629,7 @@ function App() {
               </section>
 
               <section className="info-card info-card-wide">
-                <h3>Schedule</h3>
+                <h3>Turni</h3>
                 <OfficeCalendar
                   office={selectedOffice}
                   people={people}
@@ -609,7 +642,7 @@ function App() {
 
               <details className="info-card info-card-wide people-accordion">
                 <summary>
-                  <span>People</span>
+                  <span>Persone</span>
                   <span className="menu-count">{assigned.length}</span>
                   <Chevron />
                 </summary>
@@ -617,7 +650,7 @@ function App() {
                   <PeopleTable
                     rows={assigned.map(({ person, index }) => ({ person, index, office: selectedOffice }))}
                     onSelect={selectPerson}
-                    empty="No people are assigned."
+                    empty="Nessuna persona assegnata."
                   />
                 </div>
               </details>
@@ -625,8 +658,8 @@ function App() {
           </div>
         ) : (
           <div className="empty">
-            <h2>Select an office or a person</h2>
-            <p>Choose a post office or a person from the list to see their details.</p>
+            <h2>Seleziona un ufficio o una persona</h2>
+            <p>Scegli un ufficio postale o una persona dall'elenco per vederne i dettagli.</p>
           </div>
         )}
       </main>
