@@ -1,0 +1,727 @@
+[
+  {
+    "id": "porto-mantovano",
+    "municipality": "Porto Mantovano",
+    "name": "Porto Mantovano",
+    "level": "A1",
+    "address": {
+      "street": "Via Giuseppe Mazzini, 8",
+      "postalCode": "46047",
+      "locality": "Porto Mantovano",
+      "province": "MN"
+    },
+    "openingHours": [
+      {
+        "day": "lunedì",
+        "slots": [
+          {
+            "from": "08:20",
+            "to": "19:05"
+          }
+        ]
+      },
+      {
+        "day": "martedì",
+        "slots": [
+          {
+            "from": "08:20",
+            "to": "19:05"
+          }
+        ]
+      },
+      {
+        "day": "mercoledì",
+        "slots": [
+          {
+            "from": "08:20",
+            "to": "19:05"
+          }
+        ]
+      },
+      {
+        "day": "giovedì",
+        "slots": [
+          {
+            "from": "08:20",
+            "to": "19:05"
+          }
+        ]
+      },
+      {
+        "day": "venerdì",
+        "slots": [
+          {
+            "from": "08:20",
+            "to": "19:05"
+          }
+        ]
+      },
+      {
+        "day": "sabato",
+        "slots": [
+          {
+            "from": "08:20",
+            "to": "12:35"
+          }
+        ]
+      },
+      {
+        "day": "domenica",
+        "slots": []
+      }
+    ]
+  },
+  {
+    "id": "roverbella",
+    "municipality": "Roverbella",
+    "name": "Roverbella",
+    "level": "A2",
+    "address": {
+      "street": "Piazza Castello, 3",
+      "postalCode": "46048",
+      "locality": "Roverbella",
+      "province": "MN"
+    },
+    "openingHours": [
+      {
+        "day": "lunedì",
+        "slots": [
+          {
+            "from": "08:20",
+            "to": "13:45"
+          }
+        ]
+      },
+      {
+        "day": "martedì",
+        "slots": [
+          {
+            "from": "08:20",
+            "to": "13:45"
+          },
+          {
+            "from": "15:20",
+            "to": "18:30"
+          }
+        ]
+      },
+      {
+        "day": "mercoledì",
+        "slots": [
+          {
+            "from": "08:20",
+            "to": "13:45"
+          }
+        ]
+      },
+      {
+        "day": "giovedì",
+        "slots": [
+          {
+            "from": "08:20",
+            "to": "13:45"
+          },
+          {
+            "from": "15:20",
+            "to": "18:30"
+          }
+        ]
+      },
+      {
+        "day": "venerdì",
+        "slots": [
+          {
+            "from": "08:20",
+            "to": "13:45"
+          }
+        ]
+      },
+      {
+        "day": "sabato",
+        "slots": [
+          {
+            "from": "08:20",
+            "to": "12:35"
+          }
+        ]
+      },
+      {
+        "day": "domenica",
+        "slots": []
+      }
+    ]
+  },
+  {
+    "id": "mantova-3",
+    "municipality": "Mantova",
+    "name": "Mantova 3",
+    "level": "A1",
+    "address": {
+      "street": "Via Chiassi, 22",
+      "postalCode": "46100",
+      "locality": "Mantova",
+      "province": "MN"
+    },
+    "openingHours": [
+      {
+        "day": "lunedì",
+        "slots": [
+          {
+            "from": "08:20",
+            "to": "19:05"
+          }
+        ]
+      },
+      {
+        "day": "martedì",
+        "slots": [
+          {
+            "from": "08:20",
+            "to": "19:05"
+          }
+        ]
+      },
+      {
+        "day": "mercoledì",
+        "slots": [
+          {
+            "from": "08:20",
+            "to": "19:05"
+          }
+        ]
+      },
+      {
+        "day": "giovedì",
+        "slots": [
+          {
+            "from": "08:20",
+            "to": "19:05"
+          }
+        ]
+      },
+      {
+        "day": "venerdì",
+        "slots": [
+          {
+            "from": "08:20",
+            "to": "19:05"
+          }
+        ]
+      },
+      {
+        "day": "sabato",
+        "slots": [
+          {
+            "from": "08:20",
+            "to": "13:00"
+          }
+        ]
+      },
+      {
+        "day": "domenica",
+        "slots": []
+      }
+    ]
+  },
+  {
+    "id": "malavicina",
+    "municipality": "Roverbella",
+    "name": "Malavicina",
+    "level": "C",
+    "address": {
+      "street": "Via Malavicina, 14",
+      "postalCode": "46048",
+      "locality": "Malavicina",
+      "province": "MN"
+    },
+    "openingHours": [
+      {
+        "day": "lunedì",
+        "slots": [
+          {
+            "from": "08:20",
+            "to": "13:35"
+          }
+        ]
+      },
+      {
+        "day": "martedì",
+        "slots": [
+          {
+            "from": "08:20",
+            "to": "13:35"
+          },
+          {
+            "from": "15:10",
+            "to": "17:45"
+          }
+        ]
+      },
+      {
+        "day": "mercoledì",
+        "slots": [
+          {
+            "from": "08:20",
+            "to": "13:35"
+          }
+        ]
+      },
+      {
+        "day": "giovedì",
+        "slots": [
+          {
+            "from": "08:20",
+            "to": "13:35"
+          }
+        ]
+      },
+      {
+        "day": "venerdì",
+        "slots": [
+          {
+            "from": "08:20",
+            "to": "13:35"
+          }
+        ]
+      },
+      {
+        "day": "sabato",
+        "slots": []
+      },
+      {
+        "day": "domenica",
+        "slots": []
+      }
+    ]
+  },
+  {
+    "id": "mantova-5",
+    "municipality": "Mantova",
+    "name": "Mantova 5",
+    "level": "C",
+    "address": {
+      "street": "Strada Cipata, 41",
+      "postalCode": "46100",
+      "locality": "Mantova",
+      "province": "MN"
+    },
+    "openingHours": [
+      {
+        "day": "lunedì",
+        "slots": [
+          {
+            "from": "08:20",
+            "to": "13:35"
+          }
+        ]
+      },
+      {
+        "day": "martedì",
+        "slots": [
+          {
+            "from": "08:20",
+            "to": "13:35"
+          }
+        ]
+      },
+      {
+        "day": "mercoledì",
+        "slots": [
+          {
+            "from": "08:20",
+            "to": "13:35"
+          },
+          {
+            "from": "15:00",
+            "to": "17:30"
+          }
+        ]
+      },
+      {
+        "day": "giovedì",
+        "slots": [
+          {
+            "from": "08:20",
+            "to": "13:35"
+          }
+        ]
+      },
+      {
+        "day": "venerdì",
+        "slots": [
+          {
+            "from": "08:20",
+            "to": "13:35"
+          }
+        ]
+      },
+      {
+        "day": "sabato",
+        "slots": []
+      },
+      {
+        "day": "domenica",
+        "slots": []
+      }
+    ]
+  },
+  {
+    "id": "soave-mantovano",
+    "municipality": "Porto Mantovano",
+    "name": "Soave Mantovano",
+    "level": "C",
+    "address": {
+      "street": "Via Soave, 6",
+      "postalCode": "46047",
+      "locality": "Soave",
+      "province": "MN"
+    },
+    "openingHours": [
+      {
+        "day": "lunedì",
+        "slots": [
+          {
+            "from": "08:30",
+            "to": "13:20"
+          }
+        ]
+      },
+      {
+        "day": "martedì",
+        "slots": [
+          {
+            "from": "08:30",
+            "to": "13:20"
+          }
+        ]
+      },
+      {
+        "day": "mercoledì",
+        "slots": [
+          {
+            "from": "08:30",
+            "to": "13:20"
+          }
+        ]
+      },
+      {
+        "day": "giovedì",
+        "slots": [
+          {
+            "from": "08:30",
+            "to": "13:20"
+          }
+        ]
+      },
+      {
+        "day": "venerdì",
+        "slots": [
+          {
+            "from": "08:30",
+            "to": "13:20"
+          }
+        ]
+      },
+      {
+        "day": "sabato",
+        "slots": []
+      },
+      {
+        "day": "domenica",
+        "slots": []
+      }
+    ]
+  },
+  {
+    "id": "castelbelforte",
+    "municipality": "Castelbelforte",
+    "name": "Castelbelforte",
+    "level": "B",
+    "address": {
+      "street": "Via Roma, 11",
+      "postalCode": "46032",
+      "locality": "Castelbelforte",
+      "province": "MN"
+    },
+    "openingHours": [
+      {
+        "day": "lunedì",
+        "slots": [
+          {
+            "from": "08:20",
+            "to": "13:35"
+          }
+        ]
+      },
+      {
+        "day": "martedì",
+        "slots": [
+          {
+            "from": "08:20",
+            "to": "13:35"
+          }
+        ]
+      },
+      {
+        "day": "mercoledì",
+        "slots": [
+          {
+            "from": "08:20",
+            "to": "13:35"
+          }
+        ]
+      },
+      {
+        "day": "giovedì",
+        "slots": [
+          {
+            "from": "08:20",
+            "to": "13:35"
+          }
+        ]
+      },
+      {
+        "day": "venerdì",
+        "slots": [
+          {
+            "from": "08:20",
+            "to": "13:35"
+          }
+        ]
+      },
+      {
+        "day": "sabato",
+        "slots": [
+          {
+            "from": "08:20",
+            "to": "12:35"
+          }
+        ]
+      },
+      {
+        "day": "domenica",
+        "slots": []
+      }
+    ]
+  },
+  {
+    "id": "castellucchio",
+    "municipality": "Castellucchio",
+    "name": "Castellucchio",
+    "level": "B",
+    "address": {
+      "street": "Via Matteotti, 19",
+      "postalCode": "46014",
+      "locality": "Castellucchio",
+      "province": "MN"
+    },
+    "openingHours": [
+      {
+        "day": "lunedì",
+        "slots": [
+          {
+            "from": "08:20",
+            "to": "13:35"
+          }
+        ]
+      },
+      {
+        "day": "martedì",
+        "slots": [
+          {
+            "from": "08:20",
+            "to": "13:35"
+          }
+        ]
+      },
+      {
+        "day": "mercoledì",
+        "slots": [
+          {
+            "from": "08:20",
+            "to": "13:35"
+          }
+        ]
+      },
+      {
+        "day": "giovedì",
+        "slots": [
+          {
+            "from": "08:20",
+            "to": "13:35"
+          }
+        ]
+      },
+      {
+        "day": "venerdì",
+        "slots": [
+          {
+            "from": "08:20",
+            "to": "13:35"
+          }
+        ]
+      },
+      {
+        "day": "sabato",
+        "slots": [
+          {
+            "from": "08:20",
+            "to": "12:35"
+          }
+        ]
+      },
+      {
+        "day": "domenica",
+        "slots": []
+      }
+    ]
+  },
+  {
+    "id": "marmirolo",
+    "municipality": "Marmirolo",
+    "name": "Marmirolo",
+    "level": "B",
+    "address": {
+      "street": "Via Dante Alighieri, 27",
+      "postalCode": "46045",
+      "locality": "Marmirolo",
+      "province": "MN"
+    },
+    "openingHours": [
+      {
+        "day": "lunedì",
+        "slots": [
+          {
+            "from": "08:20",
+            "to": "13:35"
+          }
+        ]
+      },
+      {
+        "day": "martedì",
+        "slots": [
+          {
+            "from": "08:20",
+            "to": "13:35"
+          }
+        ]
+      },
+      {
+        "day": "mercoledì",
+        "slots": [
+          {
+            "from": "08:20",
+            "to": "13:35"
+          }
+        ]
+      },
+      {
+        "day": "giovedì",
+        "slots": [
+          {
+            "from": "08:20",
+            "to": "13:35"
+          },
+          {
+            "from": "15:15",
+            "to": "18:00"
+          }
+        ]
+      },
+      {
+        "day": "venerdì",
+        "slots": [
+          {
+            "from": "08:20",
+            "to": "13:35"
+          }
+        ]
+      },
+      {
+        "day": "sabato",
+        "slots": [
+          {
+            "from": "08:20",
+            "to": "12:35"
+          }
+        ]
+      },
+      {
+        "day": "domenica",
+        "slots": []
+      }
+    ]
+  },
+  {
+    "id": "rivalta-sul-mincio",
+    "municipality": "Rodigo",
+    "name": "Rivalta sul Mincio",
+    "level": "B",
+    "address": {
+      "street": "Via della Chiesa, 4",
+      "postalCode": "46040",
+      "locality": "Rivalta sul Mincio",
+      "province": "MN"
+    },
+    "openingHours": [
+      {
+        "day": "lunedì",
+        "slots": [
+          {
+            "from": "08:20",
+            "to": "13:20"
+          }
+        ]
+      },
+      {
+        "day": "martedì",
+        "slots": [
+          {
+            "from": "08:20",
+            "to": "13:20"
+          }
+        ]
+      },
+      {
+        "day": "mercoledì",
+        "slots": [
+          {
+            "from": "08:20",
+            "to": "13:20"
+          }
+        ]
+      },
+      {
+        "day": "giovedì",
+        "slots": [
+          {
+            "from": "08:20",
+            "to": "13:20"
+          }
+        ]
+      },
+      {
+        "day": "venerdì",
+        "slots": [
+          {
+            "from": "08:20",
+            "to": "13:20"
+          }
+        ]
+      },
+      {
+        "day": "sabato",
+        "slots": [
+          {
+            "from": "08:20",
+            "to": "12:20"
+          }
+        ]
+      },
+      {
+        "day": "domenica",
+        "slots": []
+      }
+    ]
+  }
+]

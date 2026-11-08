@@ -1,121 +1,116 @@
 import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
+import offices from './data/uffici.json'
 import './App.css'
 
+function formatAddress(address) {
+  return `${address.street}, ${address.postalCode} ${address.locality} (${address.province})`
+}
+
+function formatDay(day) {
+  return day.charAt(0).toUpperCase() + day.slice(1)
+}
+
+function formatSlots(slots) {
+  if (slots.length === 0) return 'Closed'
+  return slots.map((slot) => `${slot.from}–${slot.to}`).join(', ')
+}
+
 function App() {
-  const [count, setCount] = useState(0)
+  const [selectedId, setSelectedId] = useState(null)
+  const [officesOpen, setOfficesOpen] = useState(true)
+  const selected = offices.find((office) => office.id === selectedId) ?? null
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
+    <div className="app">
+      <aside className="sidebar">
+        <div className="menu">
+          <button
+            type="button"
+            className="menu-toggle"
+            aria-expanded={officesOpen}
+            aria-controls="office-list"
+            onClick={() => setOfficesOpen((open) => !open)}
+          >
+            <span>Offices</span>
+            <span className="menu-count">{offices.length}</span>
+            <svg className="chevron" viewBox="0 0 16 16" aria-hidden="true">
+              <path
+                d="M6 3.5 10.5 8 6 12.5"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.6"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </button>
+          {officesOpen && (
+            <ul className="office-list" id="office-list">
+              {offices.map((office) => {
+                const isSelected = office.id === selectedId
+                return (
+                  <li key={office.id}>
+                    <button
+                      type="button"
+                      className={isSelected ? 'office-item is-selected' : 'office-item'}
+                      aria-current={isSelected ? 'true' : undefined}
+                      onClick={() => setSelectedId(office.id)}
+                    >
+                      <span className="office-name">{office.name}</span>
+                      <span className="office-meta">
+                        <span>{office.municipality}</span>
+                        <span className="level" data-level={office.level}>
+                          {office.level}
+                        </span>
+                      </span>
+                    </button>
+                  </li>
+                )
+              })}
+            </ul>
+          )}
         </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+      </aside>
 
-      <div className="ticks"></div>
+      <main className="main">
+        {selected ? (
+          <article className="office-detail">
+            <p className="detail-kicker">{selected.municipality}</p>
+            <h2>{selected.name}</h2>
+            <p className="detail-id">{selected.id}</p>
+            <span className="level detail-level" data-level={selected.level}>
+              Level {selected.level}
+            </span>
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+            <section className="detail-section">
+              <h3>Address</h3>
+              <p className="address">{formatAddress(selected.address)}</p>
+            </section>
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
+            <section className="detail-section">
+              <h3>Opening hours</h3>
+              <table className="hours">
+                <tbody>
+                  {selected.openingHours.map((entry) => (
+                    <tr key={entry.day}>
+                      <th scope="row">{formatDay(entry.day)}</th>
+                      <td className={entry.slots.length === 0 ? 'is-closed' : undefined}>
+                        {formatSlots(entry.slots)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </section>
+          </article>
+        ) : (
+          <div className="empty">
+            <h2>Select an office</h2>
+            <p>Choose a post office from the list to see its address and opening hours.</p>
+          </div>
+        )}
+      </main>
+    </div>
   )
 }
 
